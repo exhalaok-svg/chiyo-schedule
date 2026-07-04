@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>課程預約</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --stone:   #B7A7A8;   /* Warm stone — 裝飾用 */
+      --stone-d: #7A6A6B;   /* Stone dark — 文字/互動背景，白字對比 5.1:1 ✅ */
+      --stone-l: #EDE8E9;   /* Stone light tint */
+      --clay:    #C4A882;   /* Soft clay — 裝飾用 */
+      --clay-d:  #8A6050;   /* Clay dark — 按鈕，白字對比 5.4:1 ✅ */
+      --bg:      #F7F7F7;   /* Pure calm */
+      --card:    #ffffff;
+      --text:    #363030;   /* 正文，對比 12.1:1 ✅ */
+      --muted:   #747070;   /* 說明文字，對比 4.6:1 ✅ */
+      --radius:  12px;
+      --shadow:  0 2px 12px rgba(0,0,0,.07);
+    }
+
+    body {
+      font-family: 'Noto Sans TC', 'PingFang TC', sans-serif;
+      font-weight: 300;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--stone-l);
+      color: var(--text);
+      padding: 28px 24px 24px;
+      text-align: center;
+      border-bottom: 1px solid #D8D0D1;
+    }
+    header h1 { font-size: 1.4rem; font-weight: 400; letter-spacing: .04em; }
+    .brand-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      letter-spacing: .22em;
+      font-size: 2.1rem;
+      vertical-align: middle;
+    }
+    header p  { font-size: .82rem; color: var(--muted); margin-top: 6px; letter-spacing: .05em; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 32px 20px 40px;
+      border-top: 1px solid #E4DFDF;
+      margin-top: 20px;
+    }
+    footer a { display: inline-block; text-decoration: none; }
+    footer a:hover { opacity: .75; }
+    .footer-logo {
+      width: 90px;
+      height: 90px;
+      object-fit: contain;
+    }
+    footer p {
+      font-size: .78rem;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    /* ── Tabs ── */
+    .tab-bar {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      background: var(--bg);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid #E0DCDC;
+    }
+    .tab-bar::-webkit-scrollbar { display: none; }
+
+    .tab {
+      flex-shrink: 0;
+      padding: 7px 18px;
+      border-radius: 999px;
+      border: 1.5px solid #D4CCCB;
+      background: transparent;
+      color: var(--muted);
+      font-size: .85rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .2s, color .2s, border-color .2s;
+      white-space: nowrap;
+      font-weight: 500;
+    }
+    .tab:hover  { background: var(--stone-l); border-color: var(--stone-d); color: var(--stone-d); }
+    .tab.active { background: var(--stone-d); border-color: var(--stone-d); color: #fff; font-weight: 700; }
+
+    /* ── Main ── */
+    main { padding: 24px 20px 60px; max-width: 960px; margin: 0 auto; }
+
+    /* ── Grid ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 18px;
+    }
+
+    /* ── Course Card ── */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,.12); }
+
+    .card-top {
+      background: var(--stone-l);
+      color: var(--text);
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid #D8D0D1;
+    }
+    .card-top .time {
+      font-size: .8rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .card-top h3 { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+    .card-teacher {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+      font-size: .82rem;
+      color: var(--muted);
+    }
+
+    .teacher-photo {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: center top;
+      flex-shrink: 0;
+    }
+
+    .card-body {
+      padding: 14px 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--stone-l);
+      color: var(--stone-d);
+      border-radius: 6px;
+      padding: 3px 9px;
+      font-size: .78rem;
+      font-weight: 500;
+    }
+    .tag.terra { background: #F5EDE0; color: var(--clay-d); }
+
+    .desc {
+      font-size: .82rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .spots {
+      font-size: .82rem;
+      color: var(--muted);
+      margin-top: auto;
+      padding-top: 6px;
+      border-top: 1px solid #EDEAE9;
+    }
+    .spots span { color: var(--stone-d); font-weight: 500; }
+
+    /* ── Book Button ── */
+    .book-btn {
+      display: block;
+      width: 100%;
+      padding: 11px;
+      background: var(--clay-d);
+      color: #fff;
+      border: none;
+      font-size: .92rem;
+      font-family: inherit;
+      font-weight: 700;
+      letter-spacing: .03em;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      transition: background .2s;
+    }
+    .book-btn:hover { background: #755950; }
+    .book-btn.disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    /* ── Empty / Loading / Error ── */
+    .state-msg {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+    .state-msg .icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--stone-l);
+      border-top-color: var(--stone);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: 0 auto 14px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .setup-notice {
+      background: #F5EDE0;
+      border-left: 4px solid var(--clay);
+      border-radius: 6px;
+      padding: 14px 16px;
+      margin-bottom: 24px;
+      font-size: .88rem;
+      line-height: 1.6;
+    }
+    .setup-notice code {
+      background: #f0ece7;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: .84rem;
+    }
+
+    /* ── Points Bar ── */
+    .points-bar {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 16px 0;
+      background: transparent;
+      flex-wrap: wrap;
+    }
+    .points-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: .82rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: opacity .2s;
+    }
+    .points-link:hover { opacity: .75; }
+    .points-link.free  { background: var(--stone-l); color: var(--stone-d); border: 1px solid #C4BCBC; }
+    .points-link.buy   { background: var(--clay-d);  color: #fff; }
+
+    /* ── Workshop Card ── */
+    .workshop-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 18px;
+    }
+    .ws-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .ws-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,.12); }
+    .ws-card-top {
+      background: var(--stone-l);
+      color: var(--text);
+      padding: 16px;
+      border-bottom: 1px solid #D8D0D1;
+    }
+    .ws-card-top .ws-date { font-size: .8rem; color: var(--muted); margin-bottom: 4px; }
+    .ws-card-top h3 { font-size: 1.15rem; font-weight: 700; color: var(--text); }
+    .ws-card-top .ws-teacher { font-size: .82rem; color: var(--muted); margin-top: 6px; display:flex; align-items:center; gap:6px; }
+    .ws-card-body { padding: 14px 16px; flex:1; display:flex; flex-direction:column; gap:8px; }
+    .ws-meta { font-size:.82rem; color: var(--muted); display:flex; flex-wrap:wrap; gap:8px; }
+    .ws-desc { font-size:.82rem; color: var(--muted); line-height:1.55; }
+
+    @media (max-width: 480px) {
+      header h1 { font-size: 1.3rem; }
+      .grid { grid-template-columns: 1fr; }
+      .workshop-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1><span class="brand-name">CHIYO</span> 課程預約</h1>
+  <p>7日內課程表</p>
+  <div class="points-bar">
+    <a class="points-link free" href="https://forms.gle/XMQDq5Gk393gYmcL9" target="_blank" rel="noopener">✦ 免費點數申請</a>
+    <a class="points-link buy"  href="https://docs.google.com/forms/d/e/1FAIpQLScWILdW9pd8vzNLpBF_vc6D4SaWGCO1W3uG6Xx46DVketJpzg/viewform" target="_blank" rel="noopener">點數購買</a>
+  </div>
+</header>
+
+<div class="tab-bar" id="tabBar"></div>
+
+<main>
+  <div id="setupNotice" class="setup-notice" style="display:none">
+    ⚙️ 請先完成 Apps Script 設定。將 <code>APPS_SCRIPT_URL</code> 換成你部署的 Web App 網址後重新整理。<br/>
+    詳見 <strong>apps-script.js</strong> 內的說明。
+  </div>
+  <div id="stateArea" class="state-msg">
+    <div class="spinner"></div>
+    <div>載入課程資料中…</div>
+  </div>
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer>
+  <a href="https://sites.google.com/view/taichiyo/" target="_blank" rel="noopener">
+    <img src="logo.png" alt="Chiyo" class="footer-logo" />
+  </a>
+  <p>© Chiyo Studio</p>
+</footer>
+
+<script>
+  // ── 設定 ────────────────────────────────────────────────
+  const APPS_SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+  // ────────────────────────────────────────────────────────
+
+  const MOCK_DATA = [
+
+    { weekday:'2', courseName:'脈輪瑜伽', teacher:'Erin', startTime:'6:30 PM',  duration:'1', max:'5', location:'教室', formId:'DEMO', '課程介紹':'以太極引導融入瑜伽體位，專注七脈輪能量平衡。' },
+    { weekday:'2', courseName:'哈達瑜伽', teacher:'Erin', startTime:'12:00 PM', duration:'1', max:'5', location:'教室', formId:'DEMO', '課程介紹':'強調正確體位的哈達瑜伽，幫助建立力量與柔韌性。' },
+    { weekday:'4', courseName:'基礎瑜伽', teacher:'Erin', startTime:'6:30 PM',  duration:'1', max:'5', location:'教室', formId:'DEMO', '課程介紹':'適合初學者，著重正確姿勢與呼吸基礎建立。' },
+    { weekday:'5', courseName:'經典導讀', teacher:'Dean', startTime:'7:00 PM',  duration:'1', max:'5', location:'教室', formId:'DEMO', '課程介紹':'茶、經典文本、書法與太極的靜思結合，深入東方智慧。' },
+    { weekday:'5', courseName:'太極團練', teacher:'Dean', startTime:'8:00 PM',  duration:'1', max:'5', location:'教室', formId:'DEMO', '課程介紹':'承接經典導讀的太極團體練習，以動作落實所學。' },
+    { weekday:'6', courseName:'太極瑜伽', teacher:'Erin', startTime:'10:00 AM', duration:'1', max:'5', location:'教室', formId:'DEMO', '課程介紹':'融入太極身法的瑜伽課程，兼顧對齊與伸展。' },
+    { weekday:'6', courseName:'哈達瑜伽', teacher:'Erin', startTime:'2:00 PM',  duration:'1', max:'5', location:'教室', formId:'DEMO', '課程介紹':'強調正確體位的哈達瑜伽，幫助建立力量與柔韌性。' },
+    { weekday:'7', courseName:'流動瑜伽', teacher:'Erin', startTime:'12:30 PM', duration:'1', max:'5', location:'教室', formId:'DEMO', '課程介紹':'融合呼吸與動作節奏的流動課程。' },
+    { weekday:'-', courseName:'基礎瑜伽（線上）', teacher:'Dean', startTime:'8:30 PM', duration:'1', max:'100', location:'online', formId:'', '課程介紹':'線上直播課程，適合無法現場參與的學員。' },
+    { weekday:'-', courseName:'階梯流', teacher:'Erin', startTime:'',          duration:'1.5', max:'5', location:'教室', formId:'DEMO', '課程介紹':'以序列式準備動作深入探索身體力學的進階流動課程。' },
+    { weekday:'-', courseName:'哈達串聯', teacher:'Erin', startTime:'6:30 PM', duration:'1', max:'5', location:'教室', formId:'DEMO', '課程介紹':'以呼吸引導的哈達串聯，在流動序列中細緻探索每個體位。' },
+  ];
+
+  // ── 工作坊資料 ───────────────────────────────────────────
+  const WORKSHOP_DATA = [
+    { name:'開髖工作坊',     teacher:'Dean', date:'2026/6/19', time:'15:00–18:00', formUrl:'https://forms.gle/oyzTQDtrirGCcuwD7' },
+    { name:'開髖工作坊',     teacher:'Dean', date:'2026/7/17', time:'15:00–18:00', formUrl:'https://forms.gle/oyzTQDtrirGCcuwD7' },
+    { name:'開髖工作坊',     teacher:'Dean', date:'2026/8/14', time:'15:00–18:00', formUrl:'https://forms.gle/oyzTQDtrirGCcuwD7' },
+    { name:'台中開髖工作坊', teacher:'Dean', date:'2026/8/15', time:'10:00–12:00', formUrl:'https://forms.gle/g5ZH6s9uDNyeub9B8' },
+    { name:'台中・太極瑜珈', teacher:'Dean', date:'2026/8/15', time:'13:00–14:00', formUrl:'https://forms.gle/g5ZH6s9uDNyeub9B8' },
+    { name:'台中・流動瑜珈', teacher:'Dean', date:'2026/8/15', time:'14:30–15:30', formUrl:'https://forms.gle/g5ZH6s9uDNyeub9B8' },
+    { name:'開髖工作坊',     teacher:'Dean', date:'2026/9/18', time:'15:00–18:00', formUrl:'https://forms.gle/oyzTQDtrirGCcuwD7' },
+  ];
+  // ────────────────────────────────────────────────────────
+
+  const DAY_ORDER = ['2','3','4','5','6','7','1'];
+  const DAY_LABEL = {
+    '1':'週一', '2':'週二', '3':'週三',
+    '4':'週四', '5':'週五', '6':'週六', '7':'週日'
+  };
+
+  const TEACHER_PHOTOS = {
+    'Erin': 'erin.jpg',
+    'Dean': 'dean.jpeg'
+  };
+
+  let allCourses = [];
+  let activeDay  = null;
+
+  async function init() {
+    // ── 假資料模式：APPS_SCRIPT_URL 未設定時自動使用 MOCK_DATA ──
+    if (APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+      allCourses = MOCK_DATA;
+      buildTabs();
+      return;
+    }
+
+    try {
+      const res  = await fetch(APPS_SCRIPT_URL);
+      const data = await res.json();
+      allCourses = (data.courses || data).filter(c =>
+        c.courseName && c.courseName !== ''
+      );
+      buildTabs();
+    } catch (e) {
+      setStateMsg('❌', '無法載入課程資料，請確認 Apps Script 網址是否正確。');
+    }
+  }
+
+  function buildTabs() {
+    const daysInData  = [...new Set(allCourses.map(c => String(c.weekday || '-')))];
+    const orderedDays = DAY_ORDER.filter(d => daysInData.includes(d));
+
+    const bar = document.getElementById('tabBar');
+    bar.innerHTML = '';
+
+    orderedDays.forEach((day, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'tab' + (i === 0 ? ' active' : '');
+      btn.textContent = DAY_LABEL[day] || day;
+      btn.dataset.day = day;
+      btn.addEventListener('click', () => switchTab(day));
+      bar.appendChild(btn);
+    });
+
+    // 工作坊 tab 固定加在最後
+    const wsBtn = document.createElement('button');
+    wsBtn.className = 'tab';
+    wsBtn.textContent = '工作坊';
+    wsBtn.dataset.day = 'workshop';
+    wsBtn.addEventListener('click', () => switchTab('workshop'));
+    bar.appendChild(wsBtn);
+
+    if (orderedDays.length > 0) {
+      switchTab(orderedDays[0]);
+    } else {
+      switchTab('workshop');
+    }
+  }
+
+  function switchTab(day) {
+    activeDay = day;
+    document.querySelectorAll('.tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.day === day);
+    });
+    if (day === 'workshop') {
+      renderWorkshops();
+    } else {
+      renderCourses(day);
+    }
+  }
+
+  function renderWorkshops() {
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    document.getElementById('stateArea').style.display = 'none';
+
+    const today = new Date(); today.setHours(0,0,0,0);
+    const upcoming = WORKSHOP_DATA.filter(w => {
+      const parts = w.date.replace(/-/g, '/').split('/');
+      const d = new Date(+parts[0], +parts[1] - 1, +parts[2]);
+      return d >= today;
+    });
+
+    if (upcoming.length === 0) {
+      setStateMsg('🗓️', '近期工作坊即將公佈，敬請期待');
+      return;
+    }
+
+    grid.classList.remove('grid');
+    grid.classList.add('workshop-grid');
+
+    upcoming.forEach(w => {
+      const photoSrc  = TEACHER_PHOTOS[w.teacher] || null;
+      const photoHtml = photoSrc
+        ? `<img class="teacher-photo" src="${photoSrc}" alt="${w.teacher}">`
+        : '';
+      const card = document.createElement('div');
+      card.className = 'ws-card';
+      card.innerHTML = `
+        <div class="ws-card-top">
+          <div class="ws-date">📅 ${w.date || ''}${w.time ? '　' + w.time : ''}</div>
+          <h3>${w.name}</h3>
+          ${w.teacher ? `<div class="ws-teacher">${photoHtml} ${w.teacher}</div>` : ''}
+        </div>
+        <div class="ws-card-body">
+          <div class="ws-meta">
+            ${w.max     ? `<span class="tag">限額 ${w.max} 人</span>` : ''}
+            ${w.location && w.location !== '教室' ? `<span class="tag terra">📍 ${w.location}</span>` : ''}
+          </div>
+          ${w.desc ? `<p class="ws-desc">${w.desc}</p>` : ''}
+        </div>
+        ${w.formUrl
+          ? `<a class="book-btn" href="${w.formUrl}" target="_blank" rel="noopener">立即報名</a>`
+          : `<span class="book-btn disabled">報名即將開放</span>`}
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  function renderCourses(day) {
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    grid.classList.remove('workshop-grid');
+    grid.classList.add('grid');
+    document.getElementById('stateArea').style.display = 'none';
+
+    const filtered = allCourses
+      .filter(c => String(c.weekday || '-') === day)
+      .sort((a, b) => compareTime(a.startTime, b.startTime));
+
+    if (filtered.length === 0) {
+      setStateMsg('📭', '這天目前沒有課程');
+      return;
+    }
+
+    filtered.forEach(c => {
+      grid.appendChild(buildCard(c));
+    });
+  }
+
+  function buildCard(c) {
+    const isMock     = c.formId === 'DEMO';
+    const hasForm    = c.formId && c.formId !== '-' && c.formId !== '';
+    const formUrl    = (hasForm && !isMock) ? `https://docs.google.com/forms/d/${c.formId}/viewform` : null;
+    const timeLabel  = c.startTime ? formatTime(c.startTime) : '';
+    const durLabel   = c.duration  ? `${c.duration} 小時` : '';
+    const maxLabel   = c.max && c.max !== '0' ? `限額 ${c.max} 人` : '';
+    const desc       = c['課程介紹'] || '';
+    const loc        = c.location || '';
+    const teacher    = c.teacher  || '';
+    const photoSrc   = TEACHER_PHOTOS[teacher] || null;
+    const photoHtml  = photoSrc
+      ? `<img class="teacher-photo" src="${photoSrc}" alt="${teacher}">`
+      : '👤';
+    const showLoc    = loc && loc !== '教室';
+
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    card.innerHTML = `
+      <div class="card-top">
+        <div class="time">
+          ${timeLabel ? `🕐 ${timeLabel}` : ''}
+          ${durLabel  ? `&nbsp;·&nbsp;${durLabel}` : ''}
+        </div>
+        <h3>${c.courseName}</h3>
+        ${teacher ? `<div class="card-teacher">${photoHtml} ${teacher}</div>` : ''}
+      </div>
+      <div class="card-body">
+        <div class="meta-row">
+          ${showLoc ? `<span class="tag terra">📍 ${loc}</span>` : ''}
+        </div>
+        ${desc ? `<p class="desc">${desc}</p>` : ''}
+        ${maxLabel ? `<p class="spots"><span>${maxLabel}</span></p>` : ''}
+      </div>
+      ${hasForm && formUrl
+        ? `<a class="book-btn" href="${formUrl}" target="_blank" rel="noopener">立即預約</a>`
+        : hasForm && isMock
+        ? `<span class="book-btn" style="cursor:default">立即預約（示範）</span>`
+        : `<span class="book-btn disabled">目前未開放預約</span>`
+      }
+    `;
+    return card;
+  }
+
+  function setStateMsg(icon, text) {
+    const area = document.getElementById('stateArea');
+    area.style.display = 'block';
+    area.innerHTML = `<div class="icon">${icon}</div><div>${text}</div>`;
+    document.getElementById('grid').innerHTML = '';
+  }
+
+  function formatTime(t) {
+    if (!t) return '';
+    // Already formatted like "10:00 AM" or "10:00"
+    const s = String(t);
+    if (s.includes('AM') || s.includes('PM')) return s;
+    // Google Sheets serial time: fraction of a day
+    if (!isNaN(s) && s.includes('.')) {
+      const totalMins = Math.round(parseFloat(s) * 24 * 60);
+      const h = Math.floor(totalMins / 60);
+      const m = totalMins % 60;
+      return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
+    }
+    return s;
+  }
+
+  function compareTime(a, b) {
+    const toMin = t => {
+      if (!t) return 9999;
+      const s = String(t);
+      if (!isNaN(s) && s.includes('.')) return parseFloat(s) * 1440;
+      const m = s.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+      if (!m) return 9999;
+      let h = parseInt(m[1]), min = parseInt(m[2]);
+      if (m[3] && m[3].toUpperCase() === 'PM' && h !== 12) h += 12;
+      if (m[3] && m[3].toUpperCase() === 'AM' && h === 12) h = 0;
+      return h * 60 + min;
+    };
+    return toMin(a) - toMin(b);
+  }
+
+  init();
+</script>
+</body>
+</html>
