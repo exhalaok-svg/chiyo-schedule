@@ -91,10 +91,10 @@
       overflow-x: auto;
       scrollbar-width: none;
       background: var(--bg);
-      position: sticky;
-      top: 0;
-      z-index: 10;
       border-bottom: 2px solid #E0DCDC;
+      touch-action: pan-x;
+      overscroll-behavior-x: contain;
+      -webkit-overflow-scrolling: touch;
     }
     .tab-bar::-webkit-scrollbar { display: none; }
 
