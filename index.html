@@ -599,11 +599,10 @@
     document.getElementById('stateArea').style.display = 'none';
 
     const today = new Date(); today.setHours(0,0,0,0);
-    const upcoming = WORKSHOP_DATA.filter(w => {
-      const parts = w.date.replace(/-/g, '/').split('/');
-      const d = new Date(+parts[0], +parts[1] - 1, +parts[2]);
-      return d >= today;
-    });
+    const toDate = str => { const p = str.replace(/-/g,'/').split('/'); return new Date(+p[0],+p[1]-1,+p[2]); };
+    const upcoming = WORKSHOP_DATA
+      .filter(w => toDate(w.date) >= today)
+      .sort((a, b) => toDate(a.date) - toDate(b.date));
 
     if (upcoming.length === 0) {
       setStateMsg('calendar', '近期工作坊即將公佈，敬請期待');
