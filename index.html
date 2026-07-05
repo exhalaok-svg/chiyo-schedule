@@ -296,7 +296,7 @@
     }
     .points-btn-primary:hover { background: #755950; }
     .points-link-free {
-      font-size: .78rem;
+      font-size: .86rem;
       color: var(--muted);
       text-decoration: none;
       display: inline-flex;
@@ -456,9 +456,9 @@
   const WORKSHOP_DATA = [
     { name:'開髖工作坊',     teacher:'Dean', date:'2026/6/19', time:'15:00–18:00', formUrl:'https://forms.gle/oyzTQDtrirGCcuwD7',
       desc:'以太極身法引導深層髖關節釋放，結合呼吸與覺察，適合長期久坐或髖部緊繃的練習者。' },
-    { name:'開髖工作坊',     teacher:'Dean', date:'2026/7/17', time:'15:00–18:00', formUrl:'https://forms.gle/oyzTQDtrirGCcuwD7',
+    { name:'開髖工作坊',     teacher:'Dean', date:'2026/7/17', time:'15:00–18:00', formUrl:'https://forms.gle/oyzTQDtrirGCcuwD7', full:true, waitlist:true,
       desc:'以太極身法引導深層髖關節釋放，結合呼吸與覺察，適合長期久坐或髖部緊繃的練習者。' },
-    { name:'開髖工作坊',     teacher:'Dean', date:'2026/8/14', time:'15:00–18:00', formUrl:'https://forms.gle/oyzTQDtrirGCcuwD7',
+    { name:'開髖工作坊',     teacher:'Dean', date:'2026/8/14', time:'15:00–18:00', formUrl:'https://forms.gle/oyzTQDtrirGCcuwD7', full:true, waitlist:true,
       desc:'以太極身法引導深層髖關節釋放，結合呼吸與覺察，適合長期久坐或髖部緊繃的練習者。' },
     { name:'台中開髖工作坊', teacher:'Dean', date:'2026/8/15', time:'10:00–12:00', formUrl:'https://forms.gle/g5ZH6s9uDNyeub9B8',
       desc:'台中場限定。以太極身法引導深層髖關節釋放，結合呼吸與覺察，適合長期久坐或髖部緊繃的練習者。' },
@@ -592,9 +592,11 @@
         : '';
       const card = document.createElement('div');
       card.className = 'ws-card';
-      const spotsHtml = w.spotsLeft !== undefined
-        ? `<span class="tag ${w.spotsLeft <= 2 ? 'spots-urgent' : 'spots-ok'}"><i data-lucide="users"></i> 剩餘 ${w.spotsLeft} 名（${w.spotsTaken}／${w.total}）</span>`
-        : (w.max ? `<span class="tag">限額 ${w.max} 人</span>` : '');
+      const spotsHtml = w.full
+        ? `<span class="tag spots-urgent"><i data-lucide="x-circle"></i> 額滿${w.waitlist ? '・候補開放中' : ''}</span>`
+        : w.spotsLeft !== undefined
+          ? `<span class="tag ${w.spotsLeft <= 2 ? 'spots-urgent' : 'spots-ok'}"><i data-lucide="users"></i> 剩餘 ${w.spotsLeft} 名（${w.spotsTaken}／${w.total}）</span>`
+          : (w.max ? `<span class="tag">限額 ${w.max} 人</span>` : '');
       const hasMeta = spotsHtml || (w.location && w.location !== '教室');
       const bodyHtml = (hasMeta || w.desc) ? `
         <div class="ws-card-body">
@@ -604,6 +606,13 @@
           </div>` : ''}
           ${w.desc ? `<p class="ws-desc">${w.desc}</p>` : ''}
         </div>` : '';
+      const btnHtml = w.full && w.waitlist
+        ? `<a class="book-btn" href="${w.formUrl}" target="_blank" rel="noopener">候補報名</a>`
+        : w.full
+          ? `<span class="book-btn disabled">額滿</span>`
+          : w.formUrl
+            ? `<a class="book-btn" href="${w.formUrl}" target="_blank" rel="noopener">立即報名</a>`
+            : `<span class="book-btn disabled">報名即將開放</span>`;
       card.innerHTML = `
         <div class="ws-card-top">
           <div class="ws-date"><i data-lucide="calendar"></i> ${w.date || ''}${w.time ? '　' + w.time : ''}</div>
@@ -611,9 +620,7 @@
           ${w.teacher ? `<div class="ws-teacher">${photoHtml} ${w.teacher}</div>` : ''}
         </div>
         ${bodyHtml}
-        ${w.formUrl
-          ? `<a class="book-btn" href="${w.formUrl}" target="_blank" rel="noopener">立即報名</a>`
-          : `<span class="book-btn disabled">報名即將開放</span>`}
+        ${btnHtml}
       `;
       grid.appendChild(card);
     });
