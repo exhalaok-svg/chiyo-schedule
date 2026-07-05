@@ -718,9 +718,7 @@
         ${teacher ? `<div class="card-teacher">${photoHtml} ${teacher}</div>` : ''}
       </div>
       <div class="card-body">
-        <div class="meta-row">
-          ${showLoc ? `<span class="tag terra"><i data-lucide="map-pin"></i> ${loc}</span>` : ''}
-        </div>
+        ${showLoc ? `<div class="meta-row"><span class="tag terra"><i data-lucide="map-pin"></i> ${loc}</span></div>` : ''}
         ${desc ? `<p class="desc">${desc}</p>` : ''}
         ${maxLabel ? `<p class="spots"><span>${maxLabel}</span></p>` : ''}
       </div>
