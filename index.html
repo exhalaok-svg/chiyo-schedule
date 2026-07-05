@@ -84,14 +84,30 @@
     }
 
     /* ── Tabs ── */
+    .tab-wrapper {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--bg);
+      border-bottom: 2px solid #E0DCDC;
+    }
+    .tab-wrapper::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
+      width: 48px;
+      background: linear-gradient(to right, transparent, var(--bg) 80%);
+      pointer-events: none;
+      transition: opacity .25s;
+    }
+    .tab-wrapper.at-end::after { opacity: 0; }
+
     .tab-bar {
       display: flex;
       gap: 0;
       padding: 0 16px;
       overflow-x: auto;
       scrollbar-width: none;
-      background: var(--bg);
-      border-bottom: 2px solid #E0DCDC;
       touch-action: pan-x;
       overscroll-behavior-x: contain;
       -webkit-overflow-scrolling: touch;
@@ -114,8 +130,8 @@
       white-space: nowrap;
       font-weight: 400;
     }
-    .tab:hover  { color: var(--stone-d); }
-    .tab.active { color: var(--stone-d); border-bottom-color: var(--stone-d); font-weight: 600; }
+    .tab:hover  { color: var(--clay-d); }
+    .tab.active { color: var(--clay-d); border-bottom-color: var(--clay-d); font-weight: 600; }
 
     /* ── Main ── */
     main { padding: 24px 20px 60px; max-width: 960px; margin: 0 auto; }
@@ -419,7 +435,9 @@
   </div>
 </header>
 
-<div class="tab-bar" id="tabBar"></div>
+<div class="tab-wrapper" id="tabWrapper">
+  <div class="tab-bar" id="tabBar"></div>
+</div>
 
 <main>
   <div id="setupNotice" class="setup-notice" style="display:none">
@@ -779,6 +797,17 @@
   }
 
   init();
+
+  // Tab bar fade: hide right gradient when scrolled to end
+  const tabBar     = document.getElementById('tabBar');
+  const tabWrapper = document.getElementById('tabWrapper');
+  function updateTabFade() {
+    const atEnd = tabBar.scrollLeft + tabBar.clientWidth >= tabBar.scrollWidth - 4;
+    tabWrapper.classList.toggle('at-end', atEnd);
+  }
+  tabBar.addEventListener('scroll', updateTabFade, { passive: true });
+  // Run once after tabs are built so initial state is correct
+  setTimeout(updateTabFade, 0);
 </script>
 </body>
 </html>
