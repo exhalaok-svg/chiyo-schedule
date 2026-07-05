@@ -385,20 +385,22 @@
       border-bottom: 1px solid #F0ECEC;
     }
     .free-event-item:last-child { border-bottom: none; }
+    .free-event-when {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      white-space: nowrap;
+      min-width: 96px;
+    }
     .free-event-date {
-      min-width: 64px;
-      font-size: .82rem;
+      font-size: .88rem;
       color: var(--muted);
       font-weight: 500;
-      white-space: nowrap;
     }
     .free-event-day {
-      font-size: .78rem;
-      color: var(--stone-d);
-      background: var(--stone-l);
-      border-radius: 4px;
-      padding: 2px 7px;
-      font-weight: 500;
+      font-size: .82rem;
+      color: var(--muted);
+      font-weight: 400;
     }
     .free-event-name {
       flex: 1;
@@ -681,8 +683,10 @@
       const item = document.createElement('div');
       item.className = 'free-event-item';
       item.innerHTML = `
-        <span class="free-event-date">${mm}/${dd}</span>
-        <span class="free-event-day">（${e.weekday}）</span>
+        <span class="free-event-when">
+          <span class="free-event-date">${mm}/${dd}</span>
+          <span class="free-event-day">（${e.weekday}）</span>
+        </span>
         <span class="free-event-name">${e.name}</span>
         ${e.formUrl
           ? `<a class="free-event-btn" href="${e.formUrl}" target="_blank" rel="noopener">報名</a>`
