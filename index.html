@@ -593,7 +593,7 @@
       const card = document.createElement('div');
       card.className = 'ws-card';
       const spotsHtml = w.full
-        ? `<span class="tag spots-urgent"><i data-lucide="x-circle"></i> 額滿${w.waitlist ? '・候補開放中' : ''}</span>`
+        ? `<span class="tag spots-urgent"><i data-lucide="clock"></i> 額滿${w.waitlist ? '・候補開放中' : ''}</span>`
         : w.spotsLeft !== undefined
           ? `<span class="tag ${w.spotsLeft <= 2 ? 'spots-urgent' : 'spots-ok'}"><i data-lucide="users"></i> 剩餘 ${w.spotsLeft} 名（${w.spotsTaken}／${w.total}）</span>`
           : (w.max ? `<span class="tag">限額 ${w.max} 人</span>` : '');
