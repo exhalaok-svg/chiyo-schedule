@@ -437,13 +437,20 @@
 
   // ── 工作坊資料 ───────────────────────────────────────────
   const WORKSHOP_DATA = [
-    { name:'開髖工作坊',     teacher:'Dean', date:'2026/6/19', time:'15:00–18:00', formUrl:'https://forms.gle/oyzTQDtrirGCcuwD7' },
-    { name:'開髖工作坊',     teacher:'Dean', date:'2026/7/17', time:'15:00–18:00', formUrl:'https://forms.gle/oyzTQDtrirGCcuwD7' },
-    { name:'開髖工作坊',     teacher:'Dean', date:'2026/8/14', time:'15:00–18:00', formUrl:'https://forms.gle/oyzTQDtrirGCcuwD7' },
-    { name:'台中開髖工作坊', teacher:'Dean', date:'2026/8/15', time:'10:00–12:00', formUrl:'https://forms.gle/g5ZH6s9uDNyeub9B8' },
-    { name:'台中・太極瑜珈', teacher:'Dean', date:'2026/8/15', time:'13:00–14:00', formUrl:'https://forms.gle/g5ZH6s9uDNyeub9B8' },
-    { name:'台中・流動瑜珈', teacher:'Dean', date:'2026/8/15', time:'14:30–15:30', formUrl:'https://forms.gle/g5ZH6s9uDNyeub9B8' },
-    { name:'開髖工作坊',     teacher:'Dean', date:'2026/9/18', time:'15:00–18:00', formUrl:'https://forms.gle/oyzTQDtrirGCcuwD7' },
+    { name:'開髖工作坊',     teacher:'Dean', date:'2026/6/19', time:'15:00–18:00', formUrl:'https://forms.gle/oyzTQDtrirGCcuwD7',
+      desc:'以太極身法引導深層髖關節釋放，結合呼吸與覺察，適合長期久坐或髖部緊繃的練習者。' },
+    { name:'開髖工作坊',     teacher:'Dean', date:'2026/7/17', time:'15:00–18:00', formUrl:'https://forms.gle/oyzTQDtrirGCcuwD7',
+      desc:'以太極身法引導深層髖關節釋放，結合呼吸與覺察，適合長期久坐或髖部緊繃的練習者。' },
+    { name:'開髖工作坊',     teacher:'Dean', date:'2026/8/14', time:'15:00–18:00', formUrl:'https://forms.gle/oyzTQDtrirGCcuwD7',
+      desc:'以太極身法引導深層髖關節釋放，結合呼吸與覺察，適合長期久坐或髖部緊繃的練習者。' },
+    { name:'台中開髖工作坊', teacher:'Dean', date:'2026/8/15', time:'10:00–12:00', formUrl:'https://forms.gle/g5ZH6s9uDNyeub9B8',
+      desc:'台中場限定。以太極身法引導深層髖關節釋放，結合呼吸與覺察，適合長期久坐或髖部緊繃的練習者。' },
+    { name:'台中・太極瑜珈', teacher:'Dean', date:'2026/8/15', time:'13:00–14:00', formUrl:'https://forms.gle/g5ZH6s9uDNyeub9B8',
+      desc:'融合太極身法與瑜伽體位的流動課程，以鬆柔貫穿動作，體驗東方身體智慧的核心。' },
+    { name:'台中・流動瑜珈', teacher:'Dean', date:'2026/8/15', time:'14:30–15:30', formUrl:'https://forms.gle/g5ZH6s9uDNyeub9B8',
+      desc:'以呼吸為節奏引導連續動作序列，在流動中探索身體的邊界與空間感。' },
+    { name:'開髖工作坊',     teacher:'Dean', date:'2026/9/18', time:'15:00–18:00', formUrl:'https://forms.gle/oyzTQDtrirGCcuwD7',
+      desc:'以太極身法引導深層髖關節釋放，結合呼吸與覺察，適合長期久坐或髖部緊繃的練習者。' },
   ];
   // ── 免費活動資料 ──────────────────────────────────────────
   const FREE_EVENTS_DATA = [
@@ -564,19 +571,22 @@
         : '';
       const card = document.createElement('div');
       card.className = 'ws-card';
+      const hasMeta = w.max || (w.location && w.location !== '教室');
+      const bodyHtml = (hasMeta || w.desc) ? `
+        <div class="ws-card-body">
+          ${hasMeta ? `<div class="ws-meta">
+            ${w.max ? `<span class="tag">限額 ${w.max} 人</span>` : ''}
+            ${w.location && w.location !== '教室' ? `<span class="tag terra"><i data-lucide="map-pin"></i> ${w.location}</span>` : ''}
+          </div>` : ''}
+          ${w.desc ? `<p class="ws-desc">${w.desc}</p>` : ''}
+        </div>` : '';
       card.innerHTML = `
         <div class="ws-card-top">
           <div class="ws-date"><i data-lucide="calendar"></i> ${w.date || ''}${w.time ? '　' + w.time : ''}</div>
           <h3>${w.name}</h3>
           ${w.teacher ? `<div class="ws-teacher">${photoHtml} ${w.teacher}</div>` : ''}
         </div>
-        <div class="ws-card-body">
-          <div class="ws-meta">
-            ${w.max     ? `<span class="tag">限額 ${w.max} 人</span>` : ''}
-            ${w.location && w.location !== '教室' ? `<span class="tag terra"><i data-lucide="map-pin"></i> ${w.location}</span>` : ''}
-          </div>
-          ${w.desc ? `<p class="ws-desc">${w.desc}</p>` : ''}
-        </div>
+        ${bodyHtml}
         ${w.formUrl
           ? `<a class="book-btn" href="${w.formUrl}" target="_blank" rel="noopener">立即報名</a>`
           : `<span class="book-btn disabled">報名即將開放</span>`}
