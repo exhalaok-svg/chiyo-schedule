@@ -296,15 +296,35 @@
     }
     .points-btn-primary:hover { background: #755950; }
     .points-link-free {
-      font-size: .86rem;
-      color: var(--muted);
+      font-size: .88rem;
+      font-weight: 500;
+      color: var(--clay-d);
+      background: #F5EDE0;
+      border: 1.5px solid var(--clay);
+      border-radius: 999px;
+      padding: 7px 18px 7px 12px;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      padding: 6px 4px;
+      gap: 7px;
+      animation: pulse-free 2.8s ease-in-out infinite;
     }
-    .points-link-free:hover { color: var(--stone-d); text-decoration: underline; }
+    .points-link-free::before {
+      content: 'NEW';
+      font-size: .62rem;
+      font-weight: 700;
+      letter-spacing: .07em;
+      background: var(--clay-d);
+      color: #fff;
+      border-radius: 4px;
+      padding: 2px 6px;
+      flex-shrink: 0;
+    }
+    .points-link-free:hover { opacity: .82; }
+    @keyframes pulse-free {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(196,168,130,0); }
+      50%       { box-shadow: 0 0 0 5px rgba(196,168,130,.28); }
+    }
 
     /* ── Workshop Card ── */
     .workshop-grid {
