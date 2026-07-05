@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>課程預約</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -38,7 +38,7 @@
     }
 
     body {
-      font-family: 'Noto Sans TC', 'PingFang TC', sans-serif;
+      font-family: 'Inter', 'Noto Sans TC', 'PingFang TC', sans-serif;
       font-weight: 300;
       background: var(--bg);
       color: var(--text);
@@ -276,7 +276,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 12px;
       padding: 16px 16px 4px;
     }
     .points-btn-primary {
@@ -307,17 +307,6 @@
       align-items: center;
       gap: 7px;
       animation: pulse-free 2.8s ease-in-out infinite;
-    }
-    .points-link-free::before {
-      content: 'NEW';
-      font-size: .62rem;
-      font-weight: 700;
-      letter-spacing: .07em;
-      background: var(--clay-d);
-      color: #fff;
-      border-radius: 4px;
-      padding: 2px 6px;
-      flex-shrink: 0;
     }
     .points-link-free:hover { opacity: .82; }
     @keyframes pulse-free {
@@ -422,7 +411,7 @@
 <body>
 
 <header>
-  <h1><span class="brand-name">CHIYO</span> 課程預約</h1>
+  <h1>課程預約</h1>
   <p>7日內課程表</p>
   <div class="points-bar">
     <a class="points-btn-primary" href="https://docs.google.com/forms/d/e/1FAIpQLScWILdW9pd8vzNLpBF_vc6D4SaWGCO1W3uG6Xx46DVketJpzg/viewform" target="_blank" rel="noopener">購買點數</a>
