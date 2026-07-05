@@ -277,8 +277,8 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
-      padding: 14px 16px 0;
+      gap: 4px;
+      padding: 16px 16px 4px;
     }
     .points-btn-primary {
       display: inline-flex;
@@ -302,6 +302,7 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
+      padding: 6px 4px;
     }
     .points-link-free:hover { color: var(--stone-d); text-decoration: underline; }
 
@@ -375,6 +376,18 @@
       font-weight: 500;
       color: var(--text);
     }
+    .free-event-btn {
+      flex-shrink: 0;
+      padding: 5px 14px;
+      border-radius: 999px;
+      background: var(--clay-d);
+      color: #fff;
+      font-size: .78rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background .2s;
+    }
+    .free-event-btn:hover { background: #755950; }
 
     @media (max-width: 480px) {
       header h1 { font-size: 1.3rem; }
@@ -390,7 +403,7 @@
   <p>7日內課程表</p>
   <div class="points-bar">
     <a class="points-btn-primary" href="https://docs.google.com/forms/d/e/1FAIpQLScWILdW9pd8vzNLpBF_vc6D4SaWGCO1W3uG6Xx46DVketJpzg/viewform" target="_blank" rel="noopener">購買點數</a>
-    <a class="points-link-free" href="https://forms.gle/XMQDq5Gk393gYmcL9" target="_blank" rel="noopener"><i data-lucide="gift"></i> 申請免費體驗點數</a>
+    <a class="points-link-free" href="https://forms.gle/XMQDq5Gk393gYmcL9" target="_blank" rel="noopener"><i data-lucide="gift"></i> 領取免費體驗點數</a>
   </div>
 </header>
 
@@ -454,12 +467,12 @@
   ];
   // ── 免費活動資料 ──────────────────────────────────────────
   const FREE_EVENTS_DATA = [
-    { date:'2026/7/15',  weekday:'三', name:'山林輕內觀' },
-    { date:'2026/7/29',  weekday:'三', name:'山林輕內觀' },
-    { date:'2026/8/12',  weekday:'三', name:'山林輕內觀' },
-    { date:'2026/8/26',  weekday:'三', name:'山林輕內觀' },
-    { date:'2026/9/16',  weekday:'三', name:'山林輕內觀' },
-    { date:'2026/9/30',  weekday:'三', name:'山林輕內觀' },
+    { date:'2026/7/15',  weekday:'三', name:'山林輕內觀', formUrl:'https://docs.google.com/forms/d/1g5dgjAiceb2QeBZlzmIBkLJtKXfkpm3JvTuKhSJUWbM/viewform' },
+    { date:'2026/7/29',  weekday:'三', name:'山林輕內觀', formUrl:'https://docs.google.com/forms/d/1g5dgjAiceb2QeBZlzmIBkLJtKXfkpm3JvTuKhSJUWbM/viewform' },
+    { date:'2026/8/12',  weekday:'三', name:'山林輕內觀', formUrl:'https://docs.google.com/forms/d/1g5dgjAiceb2QeBZlzmIBkLJtKXfkpm3JvTuKhSJUWbM/viewform' },
+    { date:'2026/8/26',  weekday:'三', name:'山林輕內觀', formUrl:'https://docs.google.com/forms/d/1g5dgjAiceb2QeBZlzmIBkLJtKXfkpm3JvTuKhSJUWbM/viewform' },
+    { date:'2026/9/16',  weekday:'三', name:'山林輕內觀', formUrl:'https://docs.google.com/forms/d/1g5dgjAiceb2QeBZlzmIBkLJtKXfkpm3JvTuKhSJUWbM/viewform' },
+    { date:'2026/9/30',  weekday:'三', name:'山林輕內觀', formUrl:'https://docs.google.com/forms/d/1g5dgjAiceb2QeBZlzmIBkLJtKXfkpm3JvTuKhSJUWbM/viewform' },
   ];
   // ────────────────────────────────────────────────────────
 
@@ -626,6 +639,9 @@
         <span class="free-event-date">${mm}/${dd}</span>
         <span class="free-event-day">（${e.weekday}）</span>
         <span class="free-event-name">${e.name}</span>
+        ${e.formUrl
+          ? `<a class="free-event-btn" href="${e.formUrl}" target="_blank" rel="noopener">報名</a>`
+          : ''}
       `;
       list.appendChild(item);
     });
