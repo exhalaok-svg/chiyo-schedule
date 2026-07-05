@@ -6,8 +6,22 @@
   <title>課程預約</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    [data-lucide] {
+      width: 13px; height: 13px;
+      stroke: currentColor;
+      stroke-width: 1.75;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      vertical-align: -2px;
+      flex-shrink: 0;
+      display: inline-block;
+    }
+    .icon-lg [data-lucide] { width: 30px; height: 30px; stroke-width: 1.25; }
 
     :root {
       --stone:   #B7A7A8;   /* Warm stone — 裝飾用 */
@@ -228,7 +242,8 @@
       color: var(--muted);
       font-size: 1rem;
     }
-    .state-msg .icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .state-msg .icon { margin-bottom: 14px; display: flex; justify-content: center; }
+    .state-msg .icon [data-lucide] { width: 32px; height: 32px; stroke-width: 1.25; }
     .spinner {
       width: 36px; height: 36px;
       border: 3px solid var(--stone-l);
@@ -321,7 +336,7 @@
   <h1><span class="brand-name">CHIYO</span> 課程預約</h1>
   <p>7日內課程表</p>
   <div class="points-bar">
-    <a class="points-link free" href="https://forms.gle/XMQDq5Gk393gYmcL9" target="_blank" rel="noopener">✦ 免費點數申請</a>
+    <a class="points-link free" href="https://forms.gle/XMQDq5Gk393gYmcL9" target="_blank" rel="noopener"><i data-lucide="gift"></i> 免費點數申請</a>
     <a class="points-link buy"  href="https://docs.google.com/forms/d/e/1FAIpQLScWILdW9pd8vzNLpBF_vc6D4SaWGCO1W3uG6Xx46DVketJpzg/viewform" target="_blank" rel="noopener">點數購買</a>
   </div>
 </header>
@@ -330,7 +345,7 @@
 
 <main>
   <div id="setupNotice" class="setup-notice" style="display:none">
-    ⚙️ 請先完成 Apps Script 設定。將 <code>APPS_SCRIPT_URL</code> 換成你部署的 Web App 網址後重新整理。<br/>
+    <i data-lucide="settings"></i> 請先完成 Apps Script 設定。將 <code>APPS_SCRIPT_URL</code> 換成你部署的 Web App 網址後重新整理。<br/>
     詳見 <strong>apps-script.js</strong> 內的說明。
   </div>
   <div id="stateArea" class="state-msg">
@@ -409,7 +424,7 @@
       );
       buildTabs();
     } catch (e) {
-      setStateMsg('❌', '無法載入課程資料，請確認 Apps Script 網址是否正確。');
+      setStateMsg('x-circle', '無法載入課程資料，請確認 Apps Script 網址是否正確。');
     }
   }
 
@@ -469,7 +484,7 @@
     });
 
     if (upcoming.length === 0) {
-      setStateMsg('🗓️', '近期工作坊即將公佈，敬請期待');
+      setStateMsg('calendar', '近期工作坊即將公佈，敬請期待');
       return;
     }
 
@@ -485,14 +500,14 @@
       card.className = 'ws-card';
       card.innerHTML = `
         <div class="ws-card-top">
-          <div class="ws-date">📅 ${w.date || ''}${w.time ? '　' + w.time : ''}</div>
+          <div class="ws-date"><i data-lucide="calendar"></i> ${w.date || ''}${w.time ? '　' + w.time : ''}</div>
           <h3>${w.name}</h3>
           ${w.teacher ? `<div class="ws-teacher">${photoHtml} ${w.teacher}</div>` : ''}
         </div>
         <div class="ws-card-body">
           <div class="ws-meta">
             ${w.max     ? `<span class="tag">限額 ${w.max} 人</span>` : ''}
-            ${w.location && w.location !== '教室' ? `<span class="tag terra">📍 ${w.location}</span>` : ''}
+            ${w.location && w.location !== '教室' ? `<span class="tag terra"><i data-lucide="map-pin"></i> ${w.location}</span>` : ''}
           </div>
           ${w.desc ? `<p class="ws-desc">${w.desc}</p>` : ''}
         </div>
@@ -502,6 +517,7 @@
       `;
       grid.appendChild(card);
     });
+    lucide.createIcons();
   }
 
   function renderCourses(day) {
@@ -516,13 +532,14 @@
       .sort((a, b) => compareTime(a.startTime, b.startTime));
 
     if (filtered.length === 0) {
-      setStateMsg('📭', '這天目前沒有課程');
+      setStateMsg('inbox', '這天目前沒有課程');
       return;
     }
 
     filtered.forEach(c => {
       grid.appendChild(buildCard(c));
     });
+    lucide.createIcons();
   }
 
   function buildCard(c) {
@@ -538,7 +555,7 @@
     const photoSrc   = TEACHER_PHOTOS[teacher] || null;
     const photoHtml  = photoSrc
       ? `<img class="teacher-photo" src="${photoSrc}" alt="${teacher}">`
-      : '👤';
+      : '<i data-lucide="user"></i>';
     const showLoc    = loc && loc !== '教室';
 
     const card = document.createElement('div');
@@ -547,7 +564,7 @@
     card.innerHTML = `
       <div class="card-top">
         <div class="time">
-          ${timeLabel ? `🕐 ${timeLabel}` : ''}
+          ${timeLabel ? `<i data-lucide="clock"></i> ${timeLabel}` : ''}
           ${durLabel  ? `&nbsp;·&nbsp;${durLabel}` : ''}
         </div>
         <h3>${c.courseName}</h3>
@@ -555,7 +572,7 @@
       </div>
       <div class="card-body">
         <div class="meta-row">
-          ${showLoc ? `<span class="tag terra">📍 ${loc}</span>` : ''}
+          ${showLoc ? `<span class="tag terra"><i data-lucide="map-pin"></i> ${loc}</span>` : ''}
         </div>
         ${desc ? `<p class="desc">${desc}</p>` : ''}
         ${maxLabel ? `<p class="spots"><span>${maxLabel}</span></p>` : ''}
@@ -570,11 +587,12 @@
     return card;
   }
 
-  function setStateMsg(icon, text) {
+  function setStateMsg(iconName, text) {
     const area = document.getElementById('stateArea');
     area.style.display = 'block';
-    area.innerHTML = `<div class="icon">${icon}</div><div>${text}</div>`;
+    area.innerHTML = `<div class="icon"><i data-lucide="${iconName}"></i></div><div>${text}</div>`;
     document.getElementById('grid').innerHTML = '';
+    lucide.createIcons();
   }
 
   function formatTime(t) {
