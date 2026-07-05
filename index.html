@@ -477,6 +477,8 @@
     { weekday:'6', courseName:'太極瑜伽', teacher:'Erin', startTime:'10:00 AM', duration:'1', max:'5', location:'教室', formId:'DEMO', '課程介紹':'融入太極身法的瑜伽課程，兼顧對齊與伸展。' },
     { weekday:'6', courseName:'哈達瑜伽', teacher:'Erin', startTime:'2:00 PM',  duration:'1', max:'5', location:'教室', formId:'DEMO', '課程介紹':'強調正確體位的哈達瑜伽，幫助建立力量與柔韌性。' },
     { weekday:'7', courseName:'流動瑜伽', teacher:'Erin', startTime:'12:30 PM', duration:'1', max:'5', location:'教室', formId:'DEMO', '課程介紹':'融合呼吸與動作節奏的流動課程。' },
+    { weekday:'7', courseName:'太極瑜伽', teacher:'Dean', startTime:'3:00 PM',  duration:'2', max:'5', location:'忠孝敦化', formId:'DEMO', '課程介紹':'' },
+    { weekday:'7', courseName:'太極瑜伽', teacher:'Dean', startTime:'7:00 PM',  duration:'2', max:'5', location:'忠孝敦化', formId:'DEMO', full:true, '課程介紹':'' },
     { weekday:'-', courseName:'基礎瑜伽（線上）', teacher:'Dean', startTime:'8:30 PM', duration:'1', max:'100', location:'online', formId:'', '課程介紹':'線上直播課程，適合無法現場參與的學員。' },
     { weekday:'-', courseName:'階梯流', teacher:'Erin', startTime:'',          duration:'1.5', max:'5', location:'教室', formId:'DEMO', '課程介紹':'以序列式準備動作深入探索身體力學的進階流動課程。' },
     { weekday:'-', courseName:'哈達串聯', teacher:'Erin', startTime:'6:30 PM', duration:'1', max:'5', location:'教室', formId:'DEMO', '課程介紹':'以呼吸引導的哈達串聯，在流動序列中細緻探索每個體位。' },
@@ -751,13 +753,17 @@
       <div class="card-body">
         ${showLoc ? `<div class="meta-row"><span class="tag terra"><i data-lucide="map-pin"></i> ${loc}</span></div>` : ''}
         ${desc ? `<p class="desc">${desc}</p>` : ''}
-        ${maxLabel ? `<p class="spots"><span>${maxLabel}</span></p>` : ''}
+        ${c.full
+          ? `<p class="spots"><span class="tag spots-urgent"><i data-lucide="clock"></i> 額滿</span></p>`
+          : maxLabel ? `<p class="spots"><span>${maxLabel}</span></p>` : ''}
       </div>
-      ${hasForm && formUrl
-        ? `<a class="book-btn" href="${formUrl}" target="_blank" rel="noopener">立即預約</a>`
-        : hasForm && isMock
-        ? `<span class="book-btn" style="cursor:default">立即預約（示範）</span>`
-        : `<span class="book-btn disabled">目前未開放預約</span>`
+      ${c.full
+        ? `<span class="book-btn disabled">額滿</span>`
+        : hasForm && formUrl
+          ? `<a class="book-btn" href="${formUrl}" target="_blank" rel="noopener">立即預約</a>`
+          : hasForm && isMock
+            ? `<span class="book-btn" style="cursor:default">立即預約（示範）</span>`
+            : `<span class="book-btn disabled">目前未開放預約</span>`
       }
     `;
     return card;
