@@ -86,34 +86,36 @@
     /* ── Tabs ── */
     .tab-bar {
       display: flex;
-      gap: 8px;
-      padding: 12px 16px;
+      gap: 0;
+      padding: 0 16px;
       overflow-x: auto;
       scrollbar-width: none;
       background: var(--bg);
       position: sticky;
       top: 0;
       z-index: 10;
-      border-bottom: 1px solid #E0DCDC;
+      border-bottom: 2px solid #E0DCDC;
     }
     .tab-bar::-webkit-scrollbar { display: none; }
 
     .tab {
       flex-shrink: 0;
-      padding: 7px 18px;
-      border-radius: 999px;
-      border: 1.5px solid #D4CCCB;
+      padding: 12px 16px;
+      border-radius: 0;
+      border: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
       background: transparent;
       color: var(--muted);
       font-size: .85rem;
       font-family: inherit;
       cursor: pointer;
-      transition: background .2s, color .2s, border-color .2s;
+      transition: color .2s, border-color .2s;
       white-space: nowrap;
-      font-weight: 500;
+      font-weight: 400;
     }
-    .tab:hover  { background: var(--stone-l); border-color: var(--stone-d); color: var(--stone-d); }
-    .tab.active { background: var(--stone-d); border-color: var(--stone-d); color: #fff; font-weight: 700; }
+    .tab:hover  { color: var(--stone-d); }
+    .tab.active { color: var(--stone-d); border-bottom-color: var(--stone-d); font-weight: 600; }
 
     /* ── Main ── */
     main { padding: 24px 20px 60px; max-width: 960px; margin: 0 auto; }
@@ -273,26 +275,35 @@
     /* ── Points Bar ── */
     .points-bar {
       display: flex;
-      justify-content: center;
-      gap: 10px;
-      padding: 12px 16px 0;
-      background: transparent;
-      flex-wrap: wrap;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 16px 0;
     }
-    .points-link {
+    .points-btn-primary {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: .82rem;
-      font-weight: 500;
+      gap: 6px;
+      padding: 9px 28px;
+      border-radius: 999px;
+      background: var(--clay-d);
+      color: #fff;
+      font-size: .88rem;
+      font-weight: 600;
+      letter-spacing: .04em;
       text-decoration: none;
-      transition: opacity .2s;
+      transition: background .2s;
     }
-    .points-link:hover { opacity: .75; }
-    .points-link.free  { background: var(--stone-l); color: var(--stone-d); border: 1px solid #C4BCBC; }
-    .points-link.buy   { background: var(--clay-d);  color: #fff; }
+    .points-btn-primary:hover { background: #755950; }
+    .points-link-free {
+      font-size: .78rem;
+      color: var(--muted);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .points-link-free:hover { color: var(--stone-d); text-decoration: underline; }
 
     /* ── Workshop Card ── */
     .workshop-grid {
@@ -323,6 +334,48 @@
     .ws-meta { font-size:.82rem; color: var(--muted); display:flex; flex-wrap:wrap; gap:8px; }
     .ws-desc { font-size:.82rem; color: var(--muted); line-height:1.55; }
 
+    /* ── Free Events List ── */
+    .free-events-list {
+      max-width: 480px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .free-event-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--card);
+      padding: 16px 20px;
+      border-bottom: 1px solid #F0ECEC;
+    }
+    .free-event-item:last-child { border-bottom: none; }
+    .free-event-date {
+      min-width: 64px;
+      font-size: .82rem;
+      color: var(--muted);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .free-event-day {
+      font-size: .78rem;
+      color: var(--stone-d);
+      background: var(--stone-l);
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-weight: 500;
+    }
+    .free-event-name {
+      flex: 1;
+      font-size: .95rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
     @media (max-width: 480px) {
       header h1 { font-size: 1.3rem; }
       .grid { grid-template-columns: 1fr; }
@@ -336,8 +389,8 @@
   <h1><span class="brand-name">CHIYO</span> 課程預約</h1>
   <p>7日內課程表</p>
   <div class="points-bar">
-    <a class="points-link free" href="https://forms.gle/XMQDq5Gk393gYmcL9" target="_blank" rel="noopener"><i data-lucide="gift"></i> 免費點數申請</a>
-    <a class="points-link buy"  href="https://docs.google.com/forms/d/e/1FAIpQLScWILdW9pd8vzNLpBF_vc6D4SaWGCO1W3uG6Xx46DVketJpzg/viewform" target="_blank" rel="noopener">點數購買</a>
+    <a class="points-btn-primary" href="https://docs.google.com/forms/d/e/1FAIpQLScWILdW9pd8vzNLpBF_vc6D4SaWGCO1W3uG6Xx46DVketJpzg/viewform" target="_blank" rel="noopener">購買點數</a>
+    <a class="points-link-free" href="https://forms.gle/XMQDq5Gk393gYmcL9" target="_blank" rel="noopener"><i data-lucide="gift"></i> 申請免費體驗點數</a>
   </div>
 </header>
 
@@ -392,6 +445,15 @@
     { name:'台中・流動瑜珈', teacher:'Dean', date:'2026/8/15', time:'14:30–15:30', formUrl:'https://forms.gle/g5ZH6s9uDNyeub9B8' },
     { name:'開髖工作坊',     teacher:'Dean', date:'2026/9/18', time:'15:00–18:00', formUrl:'https://forms.gle/oyzTQDtrirGCcuwD7' },
   ];
+  // ── 免費活動資料 ──────────────────────────────────────────
+  const FREE_EVENTS_DATA = [
+    { date:'2026/7/15',  weekday:'三', name:'山林輕內觀' },
+    { date:'2026/7/29',  weekday:'三', name:'山林輕內觀' },
+    { date:'2026/8/12',  weekday:'三', name:'山林輕內觀' },
+    { date:'2026/8/26',  weekday:'三', name:'山林輕內觀' },
+    { date:'2026/9/16',  weekday:'三', name:'山林輕內觀' },
+    { date:'2026/9/30',  weekday:'三', name:'山林輕內觀' },
+  ];
   // ────────────────────────────────────────────────────────
 
   const DAY_ORDER = ['2','3','4','5','6','7','1'];
@@ -444,13 +506,15 @@
       bar.appendChild(btn);
     });
 
-    // 工作坊 tab 固定加在最後
-    const wsBtn = document.createElement('button');
-    wsBtn.className = 'tab';
-    wsBtn.textContent = '工作坊';
-    wsBtn.dataset.day = 'workshop';
-    wsBtn.addEventListener('click', () => switchTab('workshop'));
-    bar.appendChild(wsBtn);
+    // 固定 tabs：工作坊、免費活動
+    [['workshop', '工作坊'], ['free', '免費活動']].forEach(([key, label]) => {
+      const btn = document.createElement('button');
+      btn.className = 'tab';
+      btn.textContent = label;
+      btn.dataset.day = key;
+      btn.addEventListener('click', () => switchTab(key));
+      bar.appendChild(btn);
+    });
 
     if (orderedDays.length > 0) {
       switchTab(orderedDays[0]);
@@ -466,6 +530,8 @@
     });
     if (day === 'workshop') {
       renderWorkshops();
+    } else if (day === 'free') {
+      renderFreeEvents();
     } else {
       renderCourses(day);
     }
@@ -518,6 +584,43 @@
       grid.appendChild(card);
     });
     lucide.createIcons();
+  }
+
+  function renderFreeEvents() {
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    grid.className = '';
+    document.getElementById('stateArea').style.display = 'none';
+
+    const today = new Date(); today.setHours(0,0,0,0);
+    const upcoming = FREE_EVENTS_DATA.filter(e => {
+      const parts = e.date.replace(/-/g, '/').split('/');
+      return new Date(+parts[0], +parts[1] - 1, +parts[2]) >= today;
+    });
+
+    if (upcoming.length === 0) {
+      setStateMsg('calendar', '近期免費活動即將公佈，敬請期待');
+      return;
+    }
+
+    const list = document.createElement('div');
+    list.className = 'free-events-list';
+
+    upcoming.forEach(e => {
+      const parts = e.date.replace(/-/g, '/').split('/');
+      const mm = parts[1].replace(/^0/, '');
+      const dd = parts[2].replace(/^0/, '');
+      const item = document.createElement('div');
+      item.className = 'free-event-item';
+      item.innerHTML = `
+        <span class="free-event-date">${mm}/${dd}</span>
+        <span class="free-event-day">（${e.weekday}）</span>
+        <span class="free-event-name">${e.name}</span>
+      `;
+      list.appendChild(item);
+    });
+
+    grid.appendChild(list);
   }
 
   function renderCourses(day) {
