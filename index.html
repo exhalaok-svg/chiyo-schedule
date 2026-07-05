@@ -335,6 +335,10 @@
     .ws-meta { font-size:.82rem; color: var(--muted); display:flex; flex-wrap:wrap; gap:8px; }
     .ws-desc { font-size:.82rem; color: var(--muted); line-height:1.55; }
 
+    /* ── Spots Tags ── */
+    .tag.spots-ok     { background: #EAF3EC; color: #3A7A50; }
+    .tag.spots-urgent { background: #FDEEE8; color: #A04030; }
+
     /* ── Free Events List ── */
     .free-events-list {
       max-width: 480px;
@@ -464,6 +468,10 @@
       desc:'以呼吸為節奏引導連續動作序列，在流動中探索身體的邊界與空間感。' },
     { name:'開髖工作坊',     teacher:'Dean', date:'2026/9/18', time:'15:00–18:00', formUrl:'https://forms.gle/oyzTQDtrirGCcuwD7',
       desc:'以太極身法引導深層髖關節釋放，結合呼吸與覺察，適合長期久坐或髖部緊繃的練習者。' },
+    { name:'肩頸放鬆工作坊', teacher:'Dean', date:'2026/8/21', time:'15:00–18:00', total:6, spotsTaken:2, spotsLeft:4, formUrl:'https://forms.gle/TZa7YpF3keEG2H3q6',
+      desc:'針對肩頸長期緊繃設計，以太極鬆沉概念引導放鬆，適合長時間使用電腦或有肩頸不適的練習者。' },
+    { name:'肩頸放鬆工作坊', teacher:'Dean', date:'2026/9/25', time:'15:00–18:00', total:6, spotsTaken:0, spotsLeft:6, formUrl:'https://forms.gle/TZa7YpF3keEG2H3q6',
+      desc:'針對肩頸長期緊繃設計，以太極鬆沉概念引導放鬆，適合長時間使用電腦或有肩頸不適的練習者。' },
   ];
   // ── 免費活動資料 ──────────────────────────────────────────
   const FREE_EVENTS_DATA = [
@@ -584,11 +592,14 @@
         : '';
       const card = document.createElement('div');
       card.className = 'ws-card';
-      const hasMeta = w.max || (w.location && w.location !== '教室');
+      const spotsHtml = w.spotsLeft !== undefined
+        ? `<span class="tag ${w.spotsLeft <= 2 ? 'spots-urgent' : 'spots-ok'}"><i data-lucide="users"></i> 剩餘 ${w.spotsLeft} 名（${w.spotsTaken}／${w.total}）</span>`
+        : (w.max ? `<span class="tag">限額 ${w.max} 人</span>` : '');
+      const hasMeta = spotsHtml || (w.location && w.location !== '教室');
       const bodyHtml = (hasMeta || w.desc) ? `
         <div class="ws-card-body">
           ${hasMeta ? `<div class="ws-meta">
-            ${w.max ? `<span class="tag">限額 ${w.max} 人</span>` : ''}
+            ${spotsHtml}
             ${w.location && w.location !== '教室' ? `<span class="tag terra"><i data-lucide="map-pin"></i> ${w.location}</span>` : ''}
           </div>` : ''}
           ${w.desc ? `<p class="ws-desc">${w.desc}</p>` : ''}
