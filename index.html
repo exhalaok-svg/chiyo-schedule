@@ -541,24 +541,30 @@
   let allBookings = [];
   let activeDay   = null;
 
-  async function init() {
-    // ── 假資料模式：APPS_SCRIPT_URL 未設定時自動使用 MOCK_DATA ──
-    if (APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
-      allCourses = MOCK_DATA;
-      buildTabs();
-      return;
-    }
-
+  async function fetchData(isRefresh = false) {
     try {
       const res  = await fetch(APPS_SCRIPT_URL);
       const data = await res.json();
       allCourses  = (data.courses || data).filter(c => c.courseName && c.courseName !== '');
       allLeaves   = data.leaves   || [];
       allBookings = data.bookings || [];
-      buildTabs();
+      if (isRefresh && activeDay) {
+        switchTab(activeDay);
+      }
     } catch (e) {
-      setStateMsg('x-circle', '無法載入課程資料，請確認 Apps Script 網址是否正確。');
+      if (!isRefresh) setStateMsg('x-circle', '無法載入課程資料，請確認 Apps Script 網址是否正確。');
     }
+  }
+
+  async function init() {
+    if (APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+      allCourses = MOCK_DATA;
+      buildTabs();
+      return;
+    }
+    await fetchData();
+    buildTabs();
+    setInterval(() => fetchData(true), 5 * 60 * 1000); // 每 5 分鐘靜默更新
   }
 
   function buildTabs() {
