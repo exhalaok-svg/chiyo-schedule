@@ -788,15 +788,13 @@
       statusBadge = `<span class="tag sub-tag"><i data-lucide="repeat-2"></i> 代課：${subTeacher}</span>`;
     }
 
-    // 名額顯示
+    // 名額顯示（僅在有預約紀錄資料時才顯示；靜態限額不在卡片上顯示）
     let spotsHtml = '';
     if (!isCancelled) {
       if (isFull) {
         spotsHtml = `<p class="spots"><span class="tag spots-urgent"><i data-lucide="clock"></i> 額滿</span></p>`;
       } else if (spotsLeft !== null && maxSpots !== null) {
         spotsHtml = `<p class="spots"><span class="tag ${spotsLeft <= 2 ? 'spots-urgent' : 'spots-ok'}"><i data-lucide="users"></i> 剩餘 ${spotsLeft} 名（${spotsTaken}／${maxSpots}）</span></p>`;
-      } else if (maxSpots) {
-        spotsHtml = `<p class="spots"><span>限額 ${maxSpots} 人</span></p>`;
       }
     }
 
@@ -828,8 +826,8 @@
       </div>
       <div class="card-body">
         ${showLoc ? `<div class="meta-row"><span class="tag terra"><i data-lucide="map-pin"></i> ${loc}</span></div>` : ''}
-        ${spotsHtml}
         ${desc ? `<p class="desc">${desc}</p>` : ''}
+        ${spotsHtml}
       </div>
       ${btnHtml}
     `;
