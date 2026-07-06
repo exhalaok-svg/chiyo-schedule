@@ -423,6 +423,13 @@
     }
     .free-event-btn:hover { background: #755950; }
 
+    /* ── 停課 / 代課 ── */
+    .cancelled-card { opacity: .65; }
+    .cancelled-card .book-btn.disabled { background: #b5b0ab; }
+    .status-badge-row { margin: 4px 0 6px; }
+    .tag.cancelled-tag { background: #e8e5e3; color: #8a8480; }
+    .tag.sub-tag { background: #f5ede0; color: var(--clay-d); border: 1px solid var(--clay); }
+
     @media (max-width: 480px) {
       header h1 { font-size: 1.3rem; }
       .grid { grid-template-columns: 1fr; }
@@ -529,8 +536,10 @@
     'Dean': 'dean.jpeg'
   };
 
-  let allCourses = [];
-  let activeDay  = null;
+  let allCourses  = [];
+  let allLeaves   = [];
+  let allBookings = [];
+  let activeDay   = null;
 
   async function init() {
     // ── 假資料模式：APPS_SCRIPT_URL 未設定時自動使用 MOCK_DATA ──
@@ -543,9 +552,9 @@
     try {
       const res  = await fetch(APPS_SCRIPT_URL);
       const data = await res.json();
-      allCourses = (data.courses || data).filter(c =>
-        c.courseName && c.courseName !== ''
-      );
+      allCourses  = (data.courses || data).filter(c => c.courseName && c.courseName !== '');
+      allLeaves   = data.leaves   || [];
+      allBookings = data.bookings || [];
       buildTabs();
     } catch (e) {
       setStateMsg('x-circle', '無法載入課程資料，請確認 Apps Script 網址是否正確。');
@@ -702,6 +711,23 @@
     grid.appendChild(list);
   }
 
+  function getDateForWeekday(weekday) {
+    // '1'=Mon … '7'=Sun, JS getDay() 0=Sun 1=Mon … 6=Sat
+    const jsDow = {'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':0};
+    const target = jsDow[weekday];
+    if (target === undefined) return null;
+    const today = new Date(); today.setHours(0,0,0,0);
+    let diff = target - today.getDay();
+    if (diff < 0) diff += 7;
+    const d = new Date(today); d.setDate(today.getDate() + diff);
+    return d;
+  }
+
+  function fmtDate(d) {
+    if (!d) return '';
+    return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+  }
+
   function renderCourses(day) {
     const grid = document.getElementById('grid');
     grid.innerHTML = '';
@@ -718,55 +744,94 @@
       return;
     }
 
+    const dateStr = fmtDate(getDateForWeekday(day));
     filtered.forEach(c => {
-      grid.appendChild(buildCard(c));
+      grid.appendChild(buildCard(c, dateStr));
     });
     lucide.createIcons();
   }
 
-  function buildCard(c) {
-    const isMock     = c.formId === 'DEMO';
-    const hasForm    = c.formId && c.formId !== '-' && c.formId !== '';
-    const formUrl    = (hasForm && !isMock) ? `https://docs.google.com/forms/d/${c.formId}/viewform` : null;
-    const timeLabel  = c.startTime ? formatTime(c.startTime) : '';
-    const durLabel   = c.duration  ? `${c.duration} 小時` : '';
-    const maxLabel   = c.max && c.max !== '0' ? `限額 ${c.max} 人` : '';
-    const desc       = c['課程介紹'] || '';
-    const loc        = c.location || '';
-    const teacher    = c.teacher  || '';
-    const photoSrc   = TEACHER_PHOTOS[teacher] || null;
-    const photoHtml  = photoSrc
-      ? `<img class="teacher-photo" src="${photoSrc}" alt="${teacher}">`
+  function buildCard(c, dateStr) {
+    const isMock    = c.formId === 'DEMO';
+    const hasForm   = c.formId && c.formId !== '-' && c.formId !== '';
+    const formUrl   = (hasForm && !isMock) ? `https://docs.google.com/forms/d/${c.formId}/viewform` : null;
+    const timeLabel = c.startTime ? formatTime(c.startTime) : '';
+    const durLabel  = c.duration  ? `${c.duration} 小時` : '';
+    const desc      = c['課程介紹'] || '';
+    const loc       = c.location || '';
+    const showLoc   = loc && loc !== '教室';
+
+    // 請假狀態
+    const leaveRec    = dateStr ? allLeaves.find(l => l['日期'] === dateStr && l['課程名稱'] === c.courseName) : null;
+    const isCancelled = leaveRec && leaveRec['狀態'] === '停課';
+    const isSub       = leaveRec && leaveRec['狀態'] === '代課';
+    const subTeacher  = isSub ? (leaveRec['代課老師'] || '') : '';
+
+    // 預約紀錄
+    const bookingRec   = dateStr ? allBookings.find(b => b['日期'] === dateStr && b['課程名稱'] === c.courseName) : null;
+    const spotsTaken   = bookingRec ? (parseInt(bookingRec['已預約人數']) || 0) : null;
+    const maxSpots     = c.max && c.max !== '0' ? parseInt(c.max) : null;
+    const isFull       = c.full || (spotsTaken !== null && maxSpots !== null && spotsTaken >= maxSpots);
+    const spotsLeft    = (spotsTaken !== null && maxSpots !== null) ? maxSpots - spotsTaken : null;
+
+    const displayTeacher = subTeacher || c.teacher || '';
+    const photoSrc  = TEACHER_PHOTOS[displayTeacher] || null;
+    const photoHtml = photoSrc
+      ? `<img class="teacher-photo" src="${photoSrc}" alt="${displayTeacher}">`
       : '<i data-lucide="user"></i>';
-    const showLoc    = loc && loc !== '教室';
+
+    // 狀態 badge
+    let statusBadge = '';
+    if (isCancelled) {
+      statusBadge = `<span class="tag cancelled-tag"><i data-lucide="ban"></i> 停課</span>`;
+    } else if (isSub && subTeacher) {
+      statusBadge = `<span class="tag sub-tag"><i data-lucide="repeat-2"></i> 代課：${subTeacher}</span>`;
+    }
+
+    // 名額顯示
+    let spotsHtml = '';
+    if (!isCancelled) {
+      if (isFull) {
+        spotsHtml = `<p class="spots"><span class="tag spots-urgent"><i data-lucide="clock"></i> 額滿</span></p>`;
+      } else if (spotsLeft !== null && maxSpots !== null) {
+        spotsHtml = `<p class="spots"><span class="tag ${spotsLeft <= 2 ? 'spots-urgent' : 'spots-ok'}"><i data-lucide="users"></i> 剩餘 ${spotsLeft} 名（${spotsTaken}／${maxSpots}）</span></p>`;
+      } else if (maxSpots) {
+        spotsHtml = `<p class="spots"><span>限額 ${maxSpots} 人</span></p>`;
+      }
+    }
+
+    // 按鈕
+    let btnHtml = '';
+    if (isCancelled) {
+      btnHtml = `<span class="book-btn disabled">本日停課</span>`;
+    } else if (isFull) {
+      btnHtml = `<span class="book-btn disabled">額滿</span>`;
+    } else if (hasForm && formUrl) {
+      btnHtml = `<a class="book-btn" href="${formUrl}" target="_blank" rel="noopener">立即預約</a>`;
+    } else if (hasForm && isMock) {
+      btnHtml = `<span class="book-btn" style="cursor:default">立即預約（示範）</span>`;
+    } else {
+      btnHtml = `<span class="book-btn disabled">目前未開放預約</span>`;
+    }
 
     const card = document.createElement('div');
-    card.className = 'card';
-
+    card.className = 'card' + (isCancelled ? ' cancelled-card' : '');
     card.innerHTML = `
       <div class="card-top">
         <div class="time">
           ${timeLabel ? `<i data-lucide="clock"></i> ${timeLabel}` : ''}
           ${durLabel  ? `&nbsp;·&nbsp;${durLabel}` : ''}
         </div>
+        ${statusBadge ? `<div class="status-badge-row">${statusBadge}</div>` : ''}
         <h3>${c.courseName}</h3>
-        ${teacher ? `<div class="card-teacher">${photoHtml} ${teacher}</div>` : ''}
+        ${displayTeacher ? `<div class="card-teacher">${photoHtml} ${displayTeacher}</div>` : ''}
       </div>
       <div class="card-body">
         ${showLoc ? `<div class="meta-row"><span class="tag terra"><i data-lucide="map-pin"></i> ${loc}</span></div>` : ''}
+        ${spotsHtml}
         ${desc ? `<p class="desc">${desc}</p>` : ''}
-        ${c.full
-          ? `<p class="spots"><span class="tag spots-urgent"><i data-lucide="clock"></i> 額滿</span></p>`
-          : maxLabel ? `<p class="spots"><span>${maxLabel}</span></p>` : ''}
       </div>
-      ${c.full
-        ? `<span class="book-btn disabled">額滿</span>`
-        : hasForm && formUrl
-          ? `<a class="book-btn" href="${formUrl}" target="_blank" rel="noopener">立即預約</a>`
-          : hasForm && isMock
-            ? `<span class="book-btn" style="cursor:default">立即預約（示範）</span>`
-            : `<span class="book-btn disabled">目前未開放預約</span>`
-      }
+      ${btnHtml}
     `;
     return card;
   }
