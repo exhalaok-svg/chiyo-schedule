@@ -728,6 +728,24 @@
     return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
   }
 
+  function timeToMins(t) {
+    if (!t) return -1;
+    const s = String(t).trim();
+    const ap = s.match(/(\d+):(\d+)\s*(AM|PM)/i);
+    if (ap) {
+      let h = parseInt(ap[1]), m = parseInt(ap[2]);
+      if (ap[3].toUpperCase() === 'PM' && h !== 12) h += 12;
+      if (ap[3].toUpperCase() === 'AM' && h === 12) h = 0;
+      return h * 60 + m;
+    }
+    const hm = s.match(/^(\d+):(\d+)/);
+    if (hm) return parseInt(hm[1]) * 60 + parseInt(hm[2]);
+    if (!isNaN(s) && s.includes('.')) return Math.round(parseFloat(s) * 24 * 60);
+    const d = new Date(s);
+    if (!isNaN(d.getTime())) return d.getHours() * 60 + d.getMinutes();
+    return -1;
+  }
+
   function normalizeSheetDate(s) {
     if (!s) return '';
     const d = new Date(s);
@@ -774,7 +792,25 @@
       const end   = normalizeSheetDate(l.end_date);
       return start && end && dateStr >= start && dateStr <= end && l.teacher === c.teacher;
     }) : null;
-    const isCancelled = !!leaveRec && !leaveRec.replacement_teacher;
+
+    // 工作坊時間衝突
+    const workshopConflict = (!leaveRec && dateStr) ? (() => {
+      const cStart = timeToMins(c.startTime);
+      const cEnd   = cStart + (parseFloat(c.duration) || 1) * 60;
+      if (cStart < 0) return null;
+      return WORKSHOP_DATA.find(w => {
+        const p = w.date.replace(/-/g,'/').split('/');
+        const wDateStr = fmtDate(new Date(+p[0], +p[1]-1, +p[2]));
+        if (wDateStr !== dateStr) return false;
+        const parts = w.time.split(/[–\-]/);
+        if (parts.length < 2) return false;
+        const wStart = timeToMins(parts[0].trim());
+        const wEnd   = timeToMins(parts[1].trim());
+        return wStart >= 0 && wEnd > 0 && !(cEnd <= wStart || cStart >= wEnd);
+      }) || null;
+    })() : null;
+
+    const isCancelled = (!!leaveRec && !leaveRec.replacement_teacher) || !!workshopConflict;
     const isSub       = !!leaveRec && !!leaveRec.replacement_teacher;
     const subTeacher  = isSub ? leaveRec.replacement_teacher : '';
 
@@ -799,8 +835,10 @@
 
     // 狀態 badge
     let statusBadge = '';
+    const cancelLabel = workshopConflict ? `工作坊停課` : '停課';
+    const cancelBtnLabel = workshopConflict ? '因工作坊停課' : '本日停課';
     if (isCancelled) {
-      statusBadge = `<span class="tag cancelled-tag"><i data-lucide="ban"></i> 停課</span>`;
+      statusBadge = `<span class="tag cancelled-tag"><i data-lucide="ban"></i> ${cancelLabel}</span>`;
     } else if (isSub && subTeacher) {
       statusBadge = `<span class="tag sub-tag"><i data-lucide="repeat-2"></i> 代課：${subTeacher}</span>`;
     }
@@ -814,7 +852,7 @@
     // 按鈕
     let btnHtml = '';
     if (isCancelled) {
-      btnHtml = `<span class="book-btn disabled">本日停課</span>`;
+      btnHtml = `<span class="book-btn disabled">${cancelBtnLabel}</span>`;
     } else if (isFull) {
       btnHtml = `<span class="book-btn disabled">額滿</span>`;
     } else if (hasForm && formUrl) {
