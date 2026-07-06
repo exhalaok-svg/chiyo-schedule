@@ -473,7 +473,7 @@
 
 <script>
   // ── 設定 ────────────────────────────────────────────────
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxg8oLv2nc3mqAlLWkPijjCsFEJStG4nCyH0YdD8xGjy6Kv_fiMEE7z6vO1ad9Ajaj0/exec';
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwzv_B50y06A16ce9AoHutvg-9r4uy_c1fIYDhG4xtXC9XF81BxVft-vOS2sF3zrwiN/exec';
   // ────────────────────────────────────────────────────────
 
   const MOCK_DATA = [
@@ -728,6 +728,12 @@
     return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
   }
 
+  function normalizeSheetDate(s) {
+    if (!s) return '';
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? '' : fmtDate(d);
+  }
+
   function renderCourses(day) {
     const grid = document.getElementById('grid');
     grid.innerHTML = '';
@@ -761,18 +767,29 @@
     const loc       = c.location || '';
     const showLoc   = loc && loc !== '教室';
 
-    // 請假狀態
-    const leaveRec    = dateStr ? allLeaves.find(l => l['日期'] === dateStr && l['課程名稱'] === c.courseName) : null;
-    const isCancelled = leaveRec && leaveRec['狀態'] === '停課';
-    const isSub       = leaveRec && leaveRec['狀態'] === '代課';
-    const subTeacher  = isSub ? (leaveRec['代課老師'] || '') : '';
+    // 請假狀態（enabled=1, teacher 符合, start_date≤日期≤end_date）
+    const leaveRec = dateStr ? allLeaves.find(l => {
+      if (l.enabled !== '1') return false;
+      const start = normalizeSheetDate(l.start_date);
+      const end   = normalizeSheetDate(l.end_date);
+      return start && end && dateStr >= start && dateStr <= end && l.teacher === c.teacher;
+    }) : null;
+    const isCancelled = !!leaveRec && !leaveRec.replacement_teacher;
+    const isSub       = !!leaveRec && !!leaveRec.replacement_teacher;
+    const subTeacher  = isSub ? leaveRec.replacement_teacher : '';
 
-    // 預約紀錄
-    const bookingRec   = dateStr ? allBookings.find(b => b['日期'] === dateStr && b['課程名稱'] === c.courseName) : null;
-    const spotsTaken   = bookingRec ? (parseInt(bookingRec['已預約人數']) || 0) : null;
-    const maxSpots     = c.max && c.max !== '0' ? parseInt(c.max) : null;
-    const isFull       = c.full || (spotsTaken !== null && maxSpots !== null && spotsTaken >= maxSpots);
-    const spotsLeft    = (spotsTaken !== null && maxSpots !== null) ? maxSpots - spotsTaken : null;
+    // 預約紀錄（日期符合 + 課程欄位「名稱｜...」取第一段比對）
+    const bookingRec = dateStr ? allBookings.find(b => {
+      const bDate   = normalizeSheetDate(b['日期']);
+      const bName   = (b['課程'] || '').split('｜')[0].trim();
+      return bDate === dateStr && bName === c.courseName;
+    }) : null;
+    const spotsTaken = bookingRec ? (parseInt(bookingRec['目前預約人數']) || 0) : null;
+    const maxSpots   = bookingRec
+      ? (parseInt(bookingRec['預約上限']) || null)
+      : (c.max && c.max !== '0' ? parseInt(c.max) : null);
+    const isFull     = c.full || (spotsTaken !== null && maxSpots !== null && spotsTaken >= maxSpots);
+    const spotsLeft  = (spotsTaken !== null && maxSpots !== null) ? maxSpots - spotsTaken : null;
 
     const displayTeacher = subTeacher || c.teacher || '';
     const photoSrc  = TEACHER_PHOTOS[displayTeacher] || null;
