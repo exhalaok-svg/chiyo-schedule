@@ -777,20 +777,23 @@
     lucide.createIcons();
   }
 
-  function formatTime(t) {
+ function formatTime(t) {
     if (!t) return '';
-    // Already formatted like "10:00 AM" or "10:00"
     const s = String(t);
     if (s.includes('AM') || s.includes('PM')) return s;
-    // Google Sheets serial time: fraction of a day
     if (!isNaN(s) && s.includes('.')) {
       const totalMins = Math.round(parseFloat(s) * 24 * 60);
       const h = Math.floor(totalMins / 60);
       const m = totalMins % 60;
       return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
     }
+    const d = new Date(s);
+    if (!isNaN(d.getTime())) {
+      return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+    }
     return s;
   }
+
 
   function compareTime(a, b) {
     const toMin = t => {
