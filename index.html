@@ -574,6 +574,14 @@
     const bar = document.getElementById('tabBar');
     bar.innerHTML = '';
 
+    // 固定 tab：工作坊（置於最前）
+    const workshopBtn = document.createElement('button');
+    workshopBtn.className = 'tab';
+    workshopBtn.textContent = '工作坊';
+    workshopBtn.dataset.day = 'workshop';
+    workshopBtn.addEventListener('click', () => switchTab('workshop'));
+    bar.appendChild(workshopBtn);
+
     orderedDays.forEach((day, i) => {
       const btn = document.createElement('button');
       btn.className = 'tab' + (i === 0 ? ' active' : '');
@@ -583,15 +591,13 @@
       bar.appendChild(btn);
     });
 
-    // 固定 tabs：工作坊、免費活動
-    [['workshop', '工作坊'], ['free', '免費輕內觀']].forEach(([key, label]) => {
-      const btn = document.createElement('button');
-      btn.className = 'tab';
-      btn.textContent = label;
-      btn.dataset.day = key;
-      btn.addEventListener('click', () => switchTab(key));
-      bar.appendChild(btn);
-    });
+    // 固定 tab：免費活動
+    const freeBtn = document.createElement('button');
+    freeBtn.className = 'tab';
+    freeBtn.textContent = '免費輕內觀';
+    freeBtn.dataset.day = 'free';
+    freeBtn.addEventListener('click', () => switchTab('free'));
+    bar.appendChild(freeBtn);
 
     if (orderedDays.length > 0) {
       switchTab(orderedDays[0]);
