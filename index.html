@@ -582,9 +582,9 @@
     workshopBtn.addEventListener('click', () => switchTab('workshop'));
     bar.appendChild(workshopBtn);
 
-    orderedDays.forEach((day, i) => {
+    orderedDays.forEach(day => {
       const btn = document.createElement('button');
-      btn.className = 'tab' + (i === 0 ? ' active' : '');
+      btn.className = 'tab';
       btn.textContent = DAY_LABEL[day] || day;
       btn.dataset.day = day;
       btn.addEventListener('click', () => switchTab(day));
@@ -599,11 +599,7 @@
     freeBtn.addEventListener('click', () => switchTab('free'));
     bar.appendChild(freeBtn);
 
-    if (orderedDays.length > 0) {
-      switchTab(orderedDays[0]);
-    } else {
-      switchTab('workshop');
-    }
+    switchTab('workshop');
   }
 
   function switchTab(day) {
