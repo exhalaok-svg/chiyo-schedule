@@ -15,39 +15,32 @@
  */
 
 const SPREADSHEET_ID = '1t4mJ6476bHlExy6aF9TU_CvCtp3TcrTliv_eX6XZhno';
-const SCHEDULE_SHEET_INDEX = 0; // 第一個 sheet tab（課程排程）
 
 function doGet(e) {
   try {
-    const ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
-    const sheet = ss.getSheets()[SCHEDULE_SHEET_INDEX];
-    const data  = sheet.getDataRange().getValues();
-
-    if (data.length < 2) {
-      return jsonResponse({ status: 'ok', courses: [] });
-    }
-
-    const headers = data[0].map(h => String(h).trim());
-    const courses = [];
-
-    for (let i = 1; i < data.length; i++) {
-      const row    = data[i];
-      const course = {};
-      headers.forEach((h, j) => {
-        course[h] = row[j] !== undefined ? String(row[j]) : '';
-      });
-
-      // 跳過空白列
-      if (!course.courseName || course.courseName === '') continue;
-
-      courses.push(course);
-    }
-
-    return jsonResponse({ status: 'ok', courses });
-
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const courses  = readSheet(ss, '課程',   r => r.courseName && r.courseName !== '');
+    const leaves   = readSheet(ss, '請假',   r => r.enabled === '1');
+    const bookings = readSheet(ss, '預約紀錄', r => r['課程'] && r['課程'] !== '');
+    return jsonResponse({ status: 'ok', courses, leaves, bookings });
   } catch (err) {
     return jsonResponse({ status: 'error', message: err.message });
   }
+}
+
+function readSheet(ss, name, filterFn) {
+  const sheet = ss.getSheetByName(name);
+  if (!sheet) return [];
+  const data = sheet.getDataRange().getValues();
+  if (data.length < 2) return [];
+  const headers = data[0].map(h => String(h).trim());
+  const rows = [];
+  for (let i = 1; i < data.length; i++) {
+    const row = {};
+    headers.forEach((h, j) => { row[h] = data[i][j] !== undefined ? String(data[i][j]) : ''; });
+    if (filterFn(row)) rows.push(row);
+  }
+  return rows;
 }
 
 function jsonResponse(obj) {
