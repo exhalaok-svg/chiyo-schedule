@@ -263,7 +263,23 @@ async function main() {
     }
   }
 
-  // 2) Add sessions that exist in the 工作坊 tab (future) but aren't in
+  // 2) Remove future entries for mapped workshop types that are no longer
+  // listed in the 工作坊 tab (i.e. the session was cancelled/removed at the
+  // source). Only applies to COURSE_MAP-tracked names, so unmapped/manual
+  // entries are never silently deleted.
+  const workshopTabKeys = new Set(workshopTabRows.map((r) => `${r.name}|${r.date}`));
+  let removedCount = 0;
+  for (let i = nextData.length - 1; i >= 0; i--) {
+    const entry = nextData[i];
+    if (parseEntryDate(entry.date) < today) continue;
+    if (!COURSE_MAP[entry.name]) continue;
+    if (workshopTabKeys.has(`${entry.name}|${entry.date}`)) continue;
+    changes.push(`Removed cancelled session ${entry.name} ${entry.date} (no longer in 工作坊 tab)`);
+    nextData.splice(i, 1);
+    removedCount++;
+  }
+
+  // 3) Add sessions that exist in the 工作坊 tab (future) but aren't in
   // WORKSHOP_DATA yet, reusing an existing desc for that courseName.
   for (const row of workshopTabRows) {
     if (parseEntryDate(row.date) < today) continue;
