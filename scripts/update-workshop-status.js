@@ -31,6 +31,13 @@ const COURSE_MAP = {
   肩頸放鬆工作坊: { activitySheet: "肩頸工作坊", capacity: 6 },
 };
 
+// Registrants confirmed by the studio but missing from the response tabs
+// (e.g. rows lost from the sheet). Counted by name, so they are not
+// double-counted once the rows reappear. Remove entries when no longer needed.
+const MANUAL_REGISTRANTS = {
+  "開髖工作坊|10/16": ["林諺丞", "王雅函", "練于瑄"],
+};
+
 function gvizCsvUrl(spreadsheetId, sheetName) {
   const encoded = encodeURIComponent(sheetName);
   return `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:csv&sheet=${encoded}`;
@@ -105,15 +112,16 @@ function toSessionKey(dateStr) {
   return `${month}/${day}`;
 }
 
-async function countRegistrationsBySession(activitySheetName) {
+async function countRegistrationsBySession(activitySheetName, courseName) {
   const { header, rows } = await fetchSheetRows(ACTIVITY_SHEET_ID, activitySheetName);
   const sessionCols = header
     .map((h, i) => ({ h, i }))
     .filter(({ h }) => h === "場次" || h === "選擇場次")
     .map(({ i }) => i);
+  const nameCol = header.findIndex((h) => h === "姓名");
   const emailCol = header.findIndex((h) => /^email address$/i.test(h) || /電子郵件|信箱/.test(h));
 
-  const counts = {};
+  const people = {};
   for (const row of rows) {
     const email = emailCol >= 0 ? (row[emailCol] || "").trim() : "";
     if (!email) continue;
@@ -129,8 +137,17 @@ async function countRegistrationsBySession(activitySheetName) {
     // leading "M/D" token as the key.
     const match = sessionValue.match(/^(\d{1,2}\/\d{1,2})/);
     const key = match ? match[1] : sessionValue;
-    counts[key] = (counts[key] || 0) + 1;
+    const who = (nameCol >= 0 && (row[nameCol] || "").trim()) || email;
+    (people[key] = people[key] || new Set()).add(who);
   }
+  for (const [k, names] of Object.entries(MANUAL_REGISTRANTS)) {
+    const [course, key] = k.split("|");
+    if (course !== courseName) continue;
+    (people[key] = people[key] || new Set());
+    names.forEach((n) => people[key].add(n));
+  }
+  const counts = {};
+  for (const [k, set] of Object.entries(people)) counts[k] = set.size;
   return counts;
 }
 
@@ -216,7 +233,7 @@ async function main() {
 
   const registrationCounts = {};
   for (const [courseName, cfg] of Object.entries(COURSE_MAP)) {
-    registrationCounts[courseName] = await countRegistrationsBySession(cfg.activitySheet);
+    registrationCounts[courseName] = await countRegistrationsBySession(cfg.activitySheet, courseName);
   }
 
   const today = todayInTaipei();
