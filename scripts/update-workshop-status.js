@@ -134,6 +134,9 @@ async function countRegistrationsBySession(gid) {
       }
     }
     if (!sessionValue) continue;
+    // Waitlisted registrants are marked "（候補）" in the session value; they
+    // are not confirmed seats, so they are neither counted nor shown.
+    if (sessionValue.includes("候補")) continue;
     // sessionValue may be "9/18" or "9/18（五）15:00 - 18:00"; take the
     // leading "M/D" token as the key.
     const match = sessionValue.match(/^(\d{1,2}\/\d{1,2})/);
@@ -262,7 +265,6 @@ async function main() {
 
     if (count >= cfg.capacity) {
       entry.full = true;
-      entry.waitlist = true;
     } else {
       entry.total = cfg.capacity;
       entry.spotsTaken = count;
@@ -316,7 +318,6 @@ async function main() {
     };
     if (count >= cfg.capacity) {
       newEntry.full = true;
-      newEntry.waitlist = true;
     } else {
       newEntry.total = cfg.capacity;
       newEntry.spotsTaken = count;
